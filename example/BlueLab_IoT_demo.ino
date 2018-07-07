@@ -35,7 +35,7 @@ String data_url="/iot/call.php";
 #define DELAY_MILISECONDS 3000
 #define SAMPLE_COUNT 30
 
-DataBaseConnection *dbConn;
+BlueLabConnection *dbConn;
   
 long long timeStamp=0;
 int seqNum;
@@ -58,7 +58,7 @@ void setup() {
 
   Serial.println("\nStation id: "+String(station_id)+"\n");
 
-  dbConn = new DataBaseConnection(login_host, login_url, data_host, data_url);
+  dbConn = new BlueLabConnection(login_host, login_url, data_host, data_url);
 
   Serial.print("Acquiring Internet access, through: "+ssid+" ...");
   WiFi.begin(ssid.c_str(), ssid_password.c_str());
@@ -84,9 +84,13 @@ void setup() {
   timeStamp=0;
   dbConn->newFrame(station_id, seqNum, timeStamp);
   dbConn->addKeyValue("reset",0);
-  String res=dbConn->sendFrame();
-  Serial.println("\nSendFrame: key=reset value=0 "+res+"\n");
-  if(!res.equals("RES_OK")) dbConn->login(usr_email, usr_password);
+  int res=dbConn->sendFrame();
+  Serial.println("\nSendFrame: key=reset value=0 seqNum="+String(res)+"\n");
+  if(res==BlueLabConnection::ERR_INVALID_SESSION_ID){
+    dbConn->login(usr_email, usr_password);
+    seqNum=dbConn->getSeqNum(station_id);  //sequencia actual
+    seqNum++;
+  }
   /**/
 
   pinMode(inPin, INPUT);
@@ -109,12 +113,12 @@ void loop() {
     dbConn->addKeyValue("pin",din);
     dbConn->addKeyValue("adc",adc);
     
-    String res=dbConn->sendFrame();
+    int res=dbConn->sendFrame();
 
     Serial.println("SendFrame: key=pin value="+String(din)+"key=adc value="+String(adc)+" result: "+res+"\n");
-    if(res.equals("RES_OK")) seqNum++;
+    if(res==seqNum) seqNum++;
     else{
-      if(res.equals("ERR_INVALID_SESSION_ID")){
+      if(res==BlueLabConnection::ERR_INVALID_SESSION_ID){
         dbConn->login(usr_email, usr_password);
         dbConn->sendLastFrame();
       }

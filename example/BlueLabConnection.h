@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 
-class DataBaseConnection{
+class BlueLabConnection{
   private:
       HTTPClient http;  
       int portHttp=80; 
@@ -20,15 +20,14 @@ class DataBaseConnection{
       String frame_head;
       String frame_data;
       String frame_debug;
-      int last_base;
+      int last_station_id;
       int last_seq;
       long long last_timeStamp;
       String sendMessage(String host, int port, String url,String msg);
   public:
 
-    DataBaseConnection(String l_host, String l_url, String d_host, String d_url);
+    BlueLabConnection(String l_host, String l_url, String d_host, String d_url);
     bool login(String mail, String pass);
-    int getSessionId(int nBase);
     String longLongToString(long long ll);
     void newFrame(int base, int seq, long long timeStamp);
     void addKeyValue(String key, String value);
@@ -40,9 +39,11 @@ class DataBaseConnection{
     void addKeyValue(String key, float value);   
     void addKeyValue(String key, double value); 
     void setDebug(bool deb);
-    String sendFrame();
-    String sendLastFrame();
+    int sendFrame();
+    int sendLastFrame();
     int getSeqNum(int NumBase);
+    static const int ERR_INVALID_SESSION_ID;
+    static const int ERR_EXCEPTION;
 };
 
 #endif /* BLUELABCONNECTION_H */
