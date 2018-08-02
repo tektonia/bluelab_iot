@@ -64,7 +64,7 @@ void BlueLabConnection::newFrame(int station_id, int seq, long long timeStamp){
       last_station_id=station_id;
       last_seq=seq;
       last_timeStamp=timeStamp;
-      frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&station_id="+String(station_id)+"&seq_num="+String(seq)+"&t_stamp="+longLongToString(timeStamp);
+      frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(station_id)+"&seq_num="+String(seq)+"&t_stamp="+longLongToString(timeStamp);
       frame_data="";
 }
 
@@ -180,7 +180,7 @@ String BlueLabConnection::longLongToString(long long ll){
  *
 */
 int BlueLabConnection::sendLastFrame(){
-  frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&station_id="+String(last_station_id)+"&seq_num="+String(last_seq)+"&t_stamp="+longLongToString(last_timeStamp);
+  frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(last_station_id)+"&seq_num="+String(last_seq)+"&t_stamp="+longLongToString(last_timeStamp);
   return sendFrame();
 }
 

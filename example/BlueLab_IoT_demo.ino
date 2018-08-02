@@ -25,15 +25,15 @@ int station_id = 1;
     BlueLab IoT links
 DO NOT CHANGE
 *******************/
-String login_host="www.tektonia.com.pt";
-String login_url="/tekton/entraaqui/login.php";
+String login_host="www.bluelab.pt";
+String login_url="/login.php";
 String data_host="www.bluelab.pt";
-String data_url="/iot/call.php";  
+String data_url="/iot/calliot.php";  
 
 // maximum number of retries in case of error
 #define MAX_RETRIES 5
 #define DELAY_MILISECONDS 3000
-#define SAMPLE_COUNT 30
+#define SAMPLE_COUNT 30         // writes to the database every 90 seconds
 
 BlueLabConnection *dbConn;
   
@@ -54,7 +54,7 @@ void doReset(String err){
 void setup() {
   Serial.begin(115200);
   delay(500);
-  Serial.println("\nBlueLab IoT demo - VVS 2018\n\n"); 
+  Serial.println("\nBlueLab IoT demo - VVS 2018\n\nhttps://bluelab.pt"); 
 
   Serial.println("\nStation id: "+String(station_id)+"\n");
 
