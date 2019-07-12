@@ -12,10 +12,11 @@ class BlueLabConnection{
       String url_login;
       String host_db;
       String url_db;
-      String email;
+      String contact;
       String password;
       int sessionId;
       int numSeq;
+      boolean isMail;
       const size_t JSON_BUFFER_SIZE = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 512;
       String frame_head;
       String frame_data;
@@ -27,7 +28,7 @@ class BlueLabConnection{
   public:
 
     BlueLabConnection(String l_host, String l_url, String d_host, String d_url);
-    bool login(String mail, String pass);
+    bool login(String cntct, boolean use_email, String pass);
     String longLongToString(long long ll);
     void newFrame(int base, int seq, long long timeStamp);
     void addKeyValue(String key, String value);

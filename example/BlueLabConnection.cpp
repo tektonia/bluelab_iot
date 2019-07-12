@@ -20,18 +20,21 @@ BlueLabConnection::BlueLabConnection(String l_host, String l_url, String d_host,
 
 /*
  * Establish a login to the User datbase system
- * A session id is returnes for that login
+ * A session id is returned for that login
 */
-bool BlueLabConnection::login(String mail, String pass){
+bool BlueLabConnection::login(String cntct, boolean use_mail, String pass){
   /**/
-    email=mail;
-    password=pass;
-    String login_msg="email="+mail+"&password="+pass;
+    String login_msg="";
     String res;
+    password=pass;
+    contact=cntct;
+    isMail=use_mail;
+    if(isMail) login_msg="email="+contact+"&password="+pass;
+    else login_msg="tlm="+contact+"&password="+pass;
     
     res=sendMessage(host_login, portHttp, url_login, login_msg);
     
-    //Serial.print("Resposta: "+res);
+    Serial.print("Resposta: "+res);
     DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE);
     JsonObject& json = jsonBuffer.parseObject(res);
     String error= json["error"];
@@ -46,7 +49,11 @@ bool BlueLabConnection::login(String mail, String pass){
  *
 */
 int BlueLabConnection::getSeqNum(int station_id){   
-    String data_msg="func=getSeqNumber&email="+email+"&sessionId="+String(sessionId)+"&station_id="+String(station_id);
+    //String data_msg="func=getSeqNumber&email="+email+"&sessionId="+String(sessionId)+"&station_id="+String(station_id);
+    String data_msg="func=getSeqNumber";
+    if(isMail) data_msg+="&email=";
+    else data_msg+="&tlm=";
+    data_msg+=contact+"&sessionId="+String(sessionId)+"&station_id="+String(station_id);
     String res=sendMessage(host_db, portHttp, url_db, data_msg);
     
     DynamicJsonBuffer jsonBuffer(JSON_BUFFER_SIZE);
@@ -64,7 +71,11 @@ void BlueLabConnection::newFrame(int station_id, int seq, long long timeStamp){
       last_station_id=station_id;
       last_seq=seq;
       last_timeStamp=timeStamp;
-      frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(station_id)+"&seq_num="+String(seq)+"&t_stamp="+longLongToString(timeStamp);
+      //frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(station_id)+"&seq_num="+String(seq)+"&t_stamp="+longLongToString(timeStamp);
+      frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId);
+      if(isMail) frame_head+="&email=";
+      else frame_head+="&tlm=";
+      frame_head+=contact+"&station_id="+String(station_id)+"&seq_num="+String(seq)+"&t_stamp="+longLongToString(timeStamp);
       frame_data="";
 }
 
@@ -180,11 +191,20 @@ String BlueLabConnection::longLongToString(long long ll){
  *
 */
 int BlueLabConnection::sendLastFrame(){
-  frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(last_station_id)+"&seq_num="+String(last_seq)+"&t_stamp="+longLongToString(last_timeStamp);
+  //frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId)+"&email="+email+"&station_id="+String(last_station_id)+"&seq_num="+String(last_seq)+"&t_stamp="+longLongToString(last_timeStamp);
+  frame_head="func=storeArrayKeyValue&sessionId="+String(sessionId);
+  if(isMail) frame_head+="&email=";
+  else frame_head+="&tlm=";
+  frame_head+=contact+"&station_id="+String(last_station_id)+"&seq_num="+String(last_seq)+"&t_stamp="+longLongToString(last_timeStamp);
   return sendFrame();
 }
 
-String BlueLabConnection::sendMessage(String host, int port, String url,String msg) {
+
+/*
+ * Sends a message
+ *
+*/
+String BlueLabConnection::sendMessage(String host, int port, String url, String msg) {
   http.begin("http://"+host+":"+String(port)+url); 
   http.addHeader("Content-Type", "application/x-www-form-urlencoded"); //GET -> "Content-Type", "text/plain");
   int httpCode = http.POST(msg);
