@@ -113,7 +113,6 @@ void setup() {
   WiFi.begin(ssid.c_str(), ssid_password.c_str());
   while (WiFi.status() != WL_CONNECTED) {  
     if(count++>=MAX_RETRIES) doReset("No Internet Connection");
-    WiFi.begin(ssid.c_str(), ssid_password.c_str());
     Serial.print(".");
     delay(3000);
   }
